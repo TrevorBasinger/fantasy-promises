@@ -43,6 +43,15 @@ Promise.prototype.chain = function(f) {
     });
 };
 
+Promise.prototype.then = function (m) {
+  var promise = this;
+  return new Promise (function (resolve) {
+    return promise.fork (function ($) {
+      return m.fork (resolve);
+    });
+  });
+};
+
 /**
     ### `map(f)`
 
