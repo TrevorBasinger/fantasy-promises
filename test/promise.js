@@ -1,7 +1,7 @@
 var λ = require('fantasy-check/src/adapters/nodeunit'),
     combinators = require('fantasy-combinators'),
     IO = require('fantasy-io'),
-	I = require ('fantasy-identities'),
+    I = require ('fantasy-identities'),
     Promise = require('../fantasy-promises'),
 
     fs = require('fs'),
@@ -42,6 +42,15 @@ exports.promise = {
         function(a) {
             var promise = Promise.of(Promise.of(a)).chain(identity);
             return promise.fork(identity) === a;
+        },
+        [λ.AnyVal]
+    ),
+    'when testing nested promises with then should return correct value': λ.check(
+        function(a) {
+            var promise1 = Promise.of (a),
+                promise2 = Promise.of (2);
+
+            return promise1.then (promise2).fork (identity) === 2;
         },
         [λ.AnyVal]
     ),
@@ -123,3 +132,17 @@ exports.testExtend = function(test) {
         test.done();
     });
 };
+
+exports.testThen = function (test) {
+  Promise.of (3)
+    .map (function (x) {
+      test.equal (x, 3);
+      return x;
+    })
+    .then (Promise.of (4))
+    .fork (function (v) {
+      test.equal (4, v);
+      test.done ();
+    });
+};
+
